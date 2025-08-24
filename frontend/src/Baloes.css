@@ -1,0 +1,28 @@
+.baloes-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* não atrapalha cliques */
+  overflow: hidden;
+  z-index: 999; /* fica por cima */
+}
+
+.balao {
+  position: absolute;
+  bottom: -60px;
+  font-size: 2.5rem;
+  animation: subir 8s linear infinite;
+}
+
+@keyframes subir {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-110vh);
+    opacity: 0;
+  }
+}

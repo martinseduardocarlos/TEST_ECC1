@@ -1,0 +1,212 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  padding-top: 20px;
+}
+
+.body-banner {
+  width: 100%;
+  max-width: 600px; /* mesmo tamanho do card */
+  border-radius: 12px; /* cantos arredondados */
+  margin-bottom: 20px; /* espaço entre a imagem e o card */
+  object-fit: cover; /* mantém proporção da imagem */
+}
+
+.container {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  margin-left: -30px;
+}
+
+h1,
+h2 {
+  text-align: center;
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+form input {
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+form button {
+  margin-top: 20px;
+  padding: 16px 20px; /* maior altura */
+  font-size: 18px; /* fonte maior */
+  background: #2575fc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: 100%; /* ocupa toda largura */
+  max-width: 300px; /* limite máximo */
+  align-self: center;
+}
+
+form button:hover {
+  background: #1a5ed6;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  background: #f1f1f1;
+  margin: 6px 0;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+/* Botões do menu */
+.button-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.button-container button {
+  padding: 16px 20px; /* altura maior para celular */
+  font-size: 18px;
+  background: #2575fc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: 100%;
+}
+
+.button-container button:hover {
+  background: #1a5ed6;
+}
+
+.msg-sucesso {
+  margin-top: 10px;
+  color: #2e7d32;
+  font-weight: bold;
+  text-align: center;
+  animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.aniversariante-card {
+  background: #fff;
+  border: 2px solid #f8c4d9;
+  border-radius: 15px;
+  padding: 15px;
+  margin: 10px auto;
+  max-width: 500px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+  font-size: 16px;
+}
+
+.versiculo {
+  color: #555;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* Botões WhatsApp */
+.btn-whatsapp {
+  margin-top: 12px;
+  padding: 14px 20px; /* maior altura */
+  font-size: 16px;
+  background-color: #25d366;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+}
+
+.btn-whatsapp:hover {
+  background-color: #1ebd5a;
+}
+
+.btn-whatsapp-round {
+  margin-top: 12px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background-color: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.btn-whatsapp-round img {
+  width: 32px;
+  height: 32px;
+}
+
+.btn-whatsapp-round:hover {
+  background-color: #1ebd5a;
+  transform: scale(1.1);
+}
+
+/* Media queries para celulares */
+@media (max-width: 480px) {
+  form input,
+  form button,
+  .button-container button,
+  .btn-whatsapp {
+    font-size: 20px;
+    padding: 18px 25px;
+  }
+
+  .btn-whatsapp-round {
+    width: 70px;
+    height: 70px;
+  }
+}
