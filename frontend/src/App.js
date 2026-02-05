@@ -3,6 +3,8 @@ import axios from "axios";
 import "./App.css";
 import Baloes from "./Baloes";
 
+// ... seu código igualzinho
+
 function App() {
   // -------------------
   // 1️⃣ Estados do App
