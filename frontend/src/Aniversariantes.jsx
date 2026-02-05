@@ -20,7 +20,7 @@ function Aniversariantes() {
   }, []);
 
   if (loading) return <p>⏳ Carregando aniversariantes...</p>;
-
+//niver
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>🎉 Parabéns! 🎂</h2>
