@@ -3,7 +3,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Field, SQLModel, Session, create_engine, select
 from typing import Optional, List
 from datetime import datetime
+from sqlmodel import Session
+from sqlmodel import SQLModel, Field
+from fastapi import Body
 
+class Usuario(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str
+    senha: str
+    
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def criar_hash(senha: str):
+    return pwd_context.hash(senha)
+
+def verificar_senha(senha, hash):
+    return pwd_context.verify(senha, hash)
 
 # ----------------------------
 # Modelo do Banco
@@ -68,6 +85,27 @@ def on_startup():
 def listar_casais():
     with Session(engine) as session:
         return session.exec(select(Casal)).all()
+    
+# material novo 13.032026
+@app.post("/login")
+def login(dados: dict = Body(...)):
+
+    username = dados.get("username")
+    password = dados.get("password")
+
+    with Session(engine) as session:
+
+        usuario = session.exec(
+            select(Usuario).where(Usuario.username == username)
+        ).first()
+
+        if not usuario:
+            return {"erro": "Usuário não encontrado"}
+
+        if not verificar_senha(password, usuario.senha):
+            return {"erro": "Senha incorreta"}
+
+        return {"token": "logado"}
 
 # Criar casal com verificação de duplicidade
 @app.post("/casais", response_model=Casal)
@@ -163,3 +201,24 @@ def get_aniversariantes():
                 })
 
     return aniversariantes
+@app.post("/criar-admin")
+def criar_admin():
+
+    with Session(engine) as session:
+
+        usuario = session.exec(
+            select(Usuario).where(Usuario.username == "admin")
+        ).first()
+
+        if usuario:
+            return {"msg": "admin já existe"}
+
+        novo_admin = Usuario(
+            username="admin",
+            senha=criar_hash("123456")
+        )
+
+        session.add(novo_admin)
+        session.commit()
+
+        return {"msg": "admin criado com sucesso"}

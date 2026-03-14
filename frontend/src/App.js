@@ -2,15 +2,23 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
 import Baloes from "./Baloes";
-
-// ... seu código igualzinho
+import Login from "./Login";
 
 function App() {
+  // 🔐 Verifica login
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return <Login />;
+  }
+
   // -------------------
-  // 1️⃣ Estados do App
+  // Estados
   // -------------------
+
   const [casais, setCasais] = useState([]);
   const [telaAtual, setTelaAtual] = useState({ tela: "menu", id: null });
+
   const [form, setForm] = useState({
     nome_esposo: "",
     nome_esposa: "",
@@ -22,111 +30,33 @@ function App() {
     bairro: "",
     funcao_no_ecc: "",
   });
+
   const [sucesso, setSucesso] = useState("");
   const [aniversariantes, setAniversariantes] = useState([]);
 
-  // Novos estados para busca
   const [busca, setBusca] = useState("");
   const [casaisFiltrados, setCasaisFiltrados] = useState([]);
 
   // -------------------
-  // 2️⃣ Funções de API
+  // API
   // -------------------
+
   const loadCasais = async () => {
-    try {
-      const res = await axios.get("http://localhost:8000/casais");
-      setCasais(res.data);
-    } catch (error) {
-      console.error("Erro ao carregar casais:", error);
-    }
+    const res = await axios.get("http://localhost:8000/casais");
+    setCasais(res.data);
   };
 
   const loadAniversariantes = async () => {
-    try {
-      const res = await axios.get("http://localhost:8000/aniversariantes");
-      setAniversariantes(res.data);
-    } catch (error) {
-      console.error("Erro ao carregar aniversariantes:", error);
-      setAniversariantes([]);
-    }
+    const res = await axios.get("http://localhost:8000/aniversariantes");
+    setAniversariantes(res.data);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await axios.post("http://localhost:8000/casais", form);
-      setForm({
-        nome_esposo: "",
-        nome_esposa: "",
-        celular_esposo: "",
-        celular_esposa: "",
-        aniversario_esposo: "",
-        aniversario_esposa: "",
-        endereco: "",
-        bairro: "",
-        funcao_no_ecc: "",
-      });
-      loadCasais();
-      setSucesso("✅ Casal cadastrado com sucesso!");
-      setTimeout(() => setSucesso(""), 3000);
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
-        setSucesso("⚠️ Este casal já está cadastrado!");
-        setForm({
-          nome_esposo: "",
-          nome_esposa: "",
-          celular_esposo: "",
-          celular_esposa: "",
-          aniversario_esposo: "",
-          aniversario_esposa: "",
-          endereco: "",
-          bairro: "",
-          funcao_no_ecc: "",
-        });
-      } else {
-        setSucesso("❌ Erro ao cadastrar casal. Tente novamente.");
-      }
-      setTimeout(() => setSucesso(""), 4000);
-    }
-  };
 
-  useEffect(() => {
-    loadCasais();
-  }, []);
+    await axios.post("http://localhost:8000/casais", form);
 
-  useEffect(() => {
-    // Atualiza a lista filtrada sempre que os casais mudam
-    setCasaisFiltrados(casais);
-  }, [casais]);
-
-  const filtrarCasais = () => {
-    const filtro = busca.toLowerCase();
-    const resultado = casais.filter(
-      (c) =>
-        c.nome_esposo.toLowerCase().includes(filtro) ||
-        c.nome_esposa.toLowerCase().includes(filtro) ||
-        c.id.toString() === filtro
-    );
-    setCasaisFiltrados(resultado);
-  };
-
-  const labels = {
-    nome_esposo: "NOME ESPOSO",
-    nome_esposa: "NOME ESPOSA",
-    celular_esposo: "CELULAR ESPOSO",
-    celular_esposa: "CELULAR ESPOSA",
-    aniversario_esposo: "ANIVERSÁRIO ESPOSO ",
-    aniversario_esposa: "ANIVERSÁRIO ESPOSA ",
-    endereco: "ENDEREÇO",
-    bairro: "BAIRRO",
-    funcao_no_ecc: "FUNÇÃO NO ECC",
-  };
-
-  // -------------------
-  // 3️⃣ Componente de Atualização
-  // -------------------
-  function AtualizaCasal({ casalId, voltar }) {
-    const [formAtualiza, setFormAtualiza] = useState({
+    setForm({
       nome_esposo: "",
       nome_esposa: "",
       celular_esposo: "",
@@ -138,39 +68,88 @@ function App() {
       funcao_no_ecc: "",
     });
 
+    setSucesso("Casal cadastrado com sucesso!");
+
+    loadCasais();
+
+    setTimeout(() => setSucesso(""), 3000);
+  };
+
+  useEffect(() => {
+    loadCasais();
+  }, []);
+
+  useEffect(() => {
+    setCasaisFiltrados(casais);
+  }, [casais]);
+
+  const filtrarCasais = () => {
+    const filtro = busca.toLowerCase();
+
+    const resultado = casais.filter(
+      (c) =>
+        c.nome_esposo.toLowerCase().includes(filtro) ||
+        c.nome_esposa.toLowerCase().includes(filtro) ||
+        c.id.toString() === filtro,
+    );
+
+    setCasaisFiltrados(resultado);
+  };
+
+  const labels = {
+    nome_esposo: "NOME ESPOSO",
+    nome_esposa: "NOME ESPOSA",
+    celular_esposo: "CELULAR ESPOSO",
+    celular_esposa: "CELULAR ESPOSA",
+    aniversario_esposo: "ANIVERSÁRIO ESPOSO",
+    aniversario_esposa: "ANIVERSÁRIO ESPOSA",
+    endereco: "ENDEREÇO",
+    bairro: "BAIRRO",
+    funcao_no_ecc: "FUNÇÃO NO ECC",
+  };
+
+  // -------------------
+  // Atualizar casal
+  // -------------------
+
+  function AtualizaCasal({ casalId, voltar }) {
+    const [formAtualiza, setFormAtualiza] = useState({});
+
     useEffect(() => {
-      axios
-        .get(`http://localhost:8000/casais`)
-        .then((res) => {
-          const casal = res.data.find((c) => c.id === casalId);
-          if (casal) setFormAtualiza(casal);
-        })
-        .catch((err) => console.log(err));
+      axios.get("http://localhost:8000/casais").then((res) => {
+        const casal = res.data.find((c) => c.id === casalId);
+        if (casal) setFormAtualiza(casal);
+      });
     }, [casalId]);
 
     const handleChange = (e) => {
-      setFormAtualiza({ ...formAtualiza, [e.target.name]: e.target.value });
+      setFormAtualiza({
+        ...formAtualiza,
+        [e.target.name]: e.target.value,
+      });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
       e.preventDefault();
-      axios
-        .put(`http://localhost:8000/casais/${casalId}`, formAtualiza)
-        .then(() => {
-          alert("Casal atualizado com sucesso!");
-          voltar();
-          loadCasais();
-        })
-        .catch((err) => console.log(err));
+
+      await axios.put(`http://localhost:8000/casais/${casalId}`, formAtualiza);
+
+      alert("Casal atualizado!");
+
+      voltar();
+
+      loadCasais();
     };
 
     return (
       <div>
         <h2>Atualizar Casal</h2>
+
         <form onSubmit={handleSubmit}>
           {Object.keys(formAtualiza).map((field) => (
             <div key={field}>
-              <label>{labels[field] || field}:</label>
+              <label>{labels[field] || field}</label>
+
               <input
                 type={field.includes("aniversario") ? "date" : "text"}
                 name={field}
@@ -179,62 +158,60 @@ function App() {
               />
             </div>
           ))}
+
           <button type="submit">Atualizar</button>
-          <button type="button" onClick={voltar}>
-            Voltar
-          </button>
+
+          <button onClick={voltar}>Voltar</button>
         </form>
       </div>
     );
   }
 
   // -------------------
-  // 4️⃣ Render
+  // RENDER
   // -------------------
 
   return (
     <div className="container">
       <h1>CADASTRO DE CASAIS</h1>
 
-      {/* Menu */}
       <div className="button-container">
         {telaAtual.tela === "menu" ? (
           <>
-            <button
-              onClick={() => setTelaAtual({ tela: "cadastro", id: null })}
-            >
+            <button onClick={() => setTelaAtual({ tela: "cadastro" })}>
               CADASTRAR CASAL
             </button>
-            <button onClick={() => setTelaAtual({ tela: "lista", id: null })}>
+
+            <button onClick={() => setTelaAtual({ tela: "lista" })}>
               BUSCAR CASAL
             </button>
+
             <button
               onClick={() => {
-                setTelaAtual({ tela: "aniversariantes", id: null });
+                setTelaAtual({ tela: "aniversariantes" });
                 loadAniversariantes();
               }}
             >
               ANIVERSÁRIO DO DIA
             </button>
-            <button
-              onClick={() => setTelaAtual({ tela: "relatorios", id: null })}
-            >
+
+            <button onClick={() => setTelaAtual({ tela: "relatorios" })}>
               EXCLUIR
             </button>
           </>
         ) : (
-          <button onClick={() => setTelaAtual({ tela: "menu", id: null })}>
-            ⬅ VOLTAR
-          </button>
+          <button onClick={() => setTelaAtual({ tela: "menu" })}>VOLTAR</button>
         )}
       </div>
 
-      {/* Cadastro */}
+      {/* CADASTRO */}
+
       {telaAtual.tela === "cadastro" && (
         <form onSubmit={handleSubmit}>
           {Object.keys(form).map((field) => (
             <div key={field}>
-              <label>{labels[field]}:</label>
+              <label>{labels[field]}</label>
+
               <input
                 type={field.includes("aniversario") ? "date" : "text"}
                 value={form[field]}
@@ -243,58 +220,34 @@ function App() {
               />
             </div>
           ))}
+
           <button type="submit">SALVAR CASAL</button>
-          {sucesso && <p className="msg-sucesso">{sucesso}</p>}
+
+          {sucesso && <p>{sucesso}</p>}
         </form>
       )}
 
-      {/* Lista / Busca de Casais */}
+      {/* LISTA */}
+
       {telaAtual.tela === "lista" && (
         <>
           <h2>CASAIS CADASTRADOS</h2>
 
-          {/* Campo de busca */}
           <input
-            type="text"
-            placeholder="Buscar por nome ou ID"
+            placeholder="Buscar"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            style={{ marginRight: "10px", padding: "5px" }}
           />
-          <button
-            onClick={filtrarCasais}
-            style={{ padding: "5px 10px", marginRight: "5px" }}
-          >
-            Buscar
-          </button>
-          <button
-            onClick={() => {
-              setBusca("");
-              loadCasais();
-            }}
-            style={{ padding: "5px 10px" }}
-          >
-            Listar Todos os Casais
-          </button>
 
-          <ul style={{ marginTop: "10px" }}>
+          <button onClick={filtrarCasais}>Buscar</button>
+
+          <ul>
             {casaisFiltrados.map((c) => (
-              <li key={c.id} className="casal-card">
+              <li key={c.id}>
                 <p>
-                  <strong>ID:</strong> {c.id} | <strong>Esposo:</strong>{" "}
-                  {c.nome_esposo} | <strong>Celular:</strong> {c.celular_esposo}
+                  {c.nome_esposo} e {c.nome_esposa}
                 </p>
-                <p>
-                  <strong>Esposa:</strong> {c.nome_esposa} |{" "}
-                  <strong>Celular:</strong> {c.celular_esposa}
-                </p>
-                <p>
-                  <strong>Endereço:</strong> {c.endereco} |{" "}
-                  <strong>Bairro:</strong> {c.bairro}
-                </p>
-                <p>
-                  <strong>Função no ECC:</strong> {c.funcao_no_ecc}
-                </p>
+
                 <button
                   onClick={() => setTelaAtual({ tela: "atualiza", id: c.id })}
                 >
@@ -306,95 +259,37 @@ function App() {
         </>
       )}
 
-      {/* Atualizar */}
-      {telaAtual.tela === "atualiza" && telaAtual.id && (
+      {/* ATUALIZAR */}
+
+      {telaAtual.tela === "atualiza" && (
         <AtualizaCasal
           casalId={telaAtual.id}
-          voltar={() => setTelaAtual({ tela: "lista", id: null })}
+          voltar={() => setTelaAtual({ tela: "lista" })}
         />
       )}
 
-      {/* Aniversariantes */}
+      {/* ANIVERSARIANTES */}
+
       {telaAtual.tela === "aniversariantes" && (
-        <div className="aniversariantes-container">
-          <h2 className="titulo-aniversario">🎉 PARABÉNS! 🎂</h2>
+        <div>
+          <h2>PARABÉNS</h2>
 
-          {aniversariantes.length > 0 ? (
-            <>
-              <Baloes /> {/* 🎈🎈 balões animados 🎈🎈 */}
-              {aniversariantes.map((pessoa) => (
-                <div key={pessoa.id} className="aniversariante-card">
-                  <p>
-                    <strong>{pessoa.nome}</strong> faz aniversário hoje!
-                  </p>
-                  <p className="versiculo">
-                    📖 "O amor é paciente, o amor é bondoso..." <br /> (1
-                    Coríntios 13:4)
-                  </p>
-                  <button
-                    className="btn-whatsapp-round"
-                    onClick={() => {
-                      const numero = pessoa.celular;
-                      const mensagem =
-                        " A FAMÍLIA ECC DESEJA UM FELIZ ANIVERSÁRIO  E VIVA NOSSA BELA UNIÃO!";
+          <Baloes />
 
-                      if (!numero) {
-                        alert("Número de celular não cadastrado!");
-                        return;
-                      }
+          {aniversariantes.map((p) => (
+            <div key={p.id}>
+              <p>{p.nome}</p>
 
-                      window.open(
-                        `https://wa.me/${numero}?text=${encodeURIComponent(
-                          mensagem
-                        )}`,
-                        "_blank"
-                      );
-                    }}
-                  >
-                    WhatsApp
-                  </button>
-                </div>
-              ))}
-            </>
-          ) : (
-            <p>Hoje não há aniversariantes.</p>
-          )}
+              <button
+                onClick={() =>
+                  window.open(`https://wa.me/${p.celular}`, "_blank")
+                }
+              >
+                WhatsApp
+              </button>
+            </div>
+          ))}
         </div>
-      )}
-
-      {/* Exclusão */}
-      {telaAtual.tela === "relatorios" && (
-        <>
-          <h2>EXCLUIR CASAL</h2>
-          <ul>
-            {casais.map((c) => (
-              <li key={c.id} className="casal-card">
-                <p>
-                  <strong>{c.nome_esposo}</strong> e{" "}
-                  <strong>{c.nome_esposa}</strong>
-                </p>
-                <button
-                  onClick={async () => {
-                    if (
-                      window.confirm(
-                        `Deseja realmente excluir o casal ${c.nome_esposo} e ${c.nome_esposa}?`
-                      )
-                    ) {
-                      await axios.delete(
-                        `http://localhost:8000/casais/${c.id}`
-                      );
-                      loadCasais();
-                      alert("Casal excluído com sucesso!");
-                    }
-                  }}
-                  className="btn-excluir"
-                >
-                  EXCLUIR
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
       )}
     </div>
   );
